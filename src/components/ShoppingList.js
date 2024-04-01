@@ -3,48 +3,40 @@ import ItemForm from "./ItemForm";
 import Filter from "./Filter";
 import Item from "./Item";
 
-function ShoppingList({ items , setItems}) {
+function ShoppingList({ items, onItemFormSubmit }) {
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [searchItem, setSearchItem] = useState("")
+  const [search, setSearch] = useState("");
 
+  function onSearchChange(event) {
+    setSearch(event.target.value);
+  }
   function handleCategoryChange(event) {
     setSelectedCategory(event.target.value);
   }
 
-
- function  handleSearchChange(e) {
-    setSearchItem(e.target.value);
-  }
-
-  
-
-
-
   const itemsToDisplay = items.filter((item) => {
-    if (searchItem.length == 0 && selectedCategory === "All") {
-      return true;
-    } 
-    else if (item.category === selectedCategory && searchItem.length == 0){
-      return item.category === selectedCategory;
-    }
-     else if (searchItem.length > 0 && selectedCategory === "All") {
-      return item.name.toLowerCase().includes(searchItem.toLocaleLowerCase());
-    }
-     else if(item.category === selectedCategory && searchItem.length > 0){
-      return item.name.toLowerCase().includes(searchItem.toLocaleLowerCase()) && item.category === selectedCategory;
-    } 
+    if (selectedCategory === "All") return true;
+
+    return item.category === selectedCategory;
   });
-
-  const onItemFormSubmit = (obj) => {
-    setItems([...items, obj]);
-  };
-
   return (
     <div className="ShoppingList">
       <ItemForm onItemFormSubmit={onItemFormSubmit} />
-      <Filter onCategoryChange={handleCategoryChange} search={searchItem} onSearchChange={handleSearchChange} />
+      <Filter onCategoryChange={handleCategoryChange}
+        search={search}
+        setSearch={setSearch}
+        onSearchChange={onSearchChange}
+      />
       <ul className="Items">
-        {itemsToDisplay.map((item) => (
+        {itemsToDisplay.filter((item) => {
+          if (search === "") {
+            return true;
+          } else if (item.name.toLowerCase().includes(search.toLowerCase())) {
+            return true;
+          } else {
+            return false;
+          }
+        }).map((item) => (
           <Item key={item.id} name={item.name} category={item.category} />
         ))}
       </ul>
